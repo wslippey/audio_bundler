@@ -8,8 +8,8 @@ RE_AUDIO_CHAPTER = re.compile(
     '^(?P<isbn>\d{13,16})_'
     '(?P<abridged>(AB|DA))_'
     '(?P<disc>\d{2})_'
-    '(?P<track>\d{3})_r'
-    '\.(?P<ext>\d+)$'
+    '(?P<track>\d{3})_r1'
+    '\.(?P<ext>(wav|flac))$'
 )
 
 
