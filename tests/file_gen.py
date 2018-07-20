@@ -13,6 +13,7 @@ def generate_test_audio_files(
         isbn,
         is_abridged=True,
         ext='wav',
+        random_ext=False,
         disc_limit=10,
         missing_discs=False,
         track_limit=5,
@@ -26,6 +27,7 @@ def generate_test_audio_files(
     :param isbn: string
     :param is_abridged: switch between codes AB|DA
     :param ext: file extension
+    :param random_ext: set True to mix-up extensions
     :param disc_limit: maximum discs to produce
     :param missing_discs: set to True to create missing discs
     :param track_limit: maximum track per disc
@@ -39,22 +41,29 @@ def generate_test_audio_files(
         raise Exception('Test files directory: {} does not exist'.format(
             target_directory))
 
-    base_file_name = '{isbn}_{is_abridged}_{{}}_{{}}_r1.{ext}'.format(
+    base_file_name = '{isbn}_{is_abridged}_{{}}_{{}}_r1.{{}}'.format(
         isbn=isbn,
         is_abridged='AB' if is_abridged else 'DA',
-        ext=ext,
     )
 
     track_names = []
     for d in range(1, disc_limit + 1):
+        if missing_discs and random.randint(1, 10) > 2:
+            continue
         disc_num = '{:0>2d}'.format(d)
         track_range = range(1, track_limit + 1)
         if random_tracks:
             track_range = range(1, random.choice(track_range) + 1)
 
         for t in track_range:
+            if missing_tracks and random.randint(1, 10) > 5:
+                continue
             track_num = '{:0>3d}'.format(t)
-            file_name = base_file_name.format(disc_num, track_num)
+            file_name = base_file_name.format(
+                disc_num, track_num,
+                ext if not random_ext
+                else random.choice(['wav', 'flac', 'xml', 'txt'])
+            )
             track_names.append(file_name)
 
             if not dry_run:
@@ -68,8 +77,10 @@ def generate_test_audio_files(
 if __name__ == '__main__':
 
     results = generate_test_audio_files(
-        'clean',
+        'missing_both',
         '9780739366608',
-        dry_run=True
+        # missing_discs=True,
+        # missing_tracks=True,
+        dry_run=False
     )
 
