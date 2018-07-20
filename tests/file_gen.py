@@ -1,4 +1,6 @@
 import os
+import random
+import pprint
 
 from pathlib import Path
 
@@ -13,8 +15,10 @@ def generate_test_audio_files(
         ext='wav',
         disc_limit=10,
         missing_discs=False,
-        track_limit=(),
-        missing_tracks=False
+        track_limit=5,
+        missing_tracks=False,
+        random_tracks=True,
+        dry_run=False
 ):
     """
     Create test audio files for cd audio books
@@ -26,6 +30,8 @@ def generate_test_audio_files(
     :param missing_discs: set to True to create missing discs
     :param track_limit: maximum track per disc
     :param missing_tracks: set to True to create missing tracks in a disc
+    :param random_tracks: randomize number of tracks per disc
+    :param dry_run: only print file names, don't generate
     :return:
     """
     target_directory = Path(TEST_DIR, 'test_files', test_file_dir)
@@ -38,12 +44,32 @@ def generate_test_audio_files(
         is_abridged='AB' if is_abridged else 'DA',
         ext=ext,
     )
-    return base_file_name
+
+    track_names = []
+    for d in range(1, disc_limit + 1):
+        disc_num = '{:0>2d}'.format(d)
+        track_range = range(1, track_limit + 1)
+        if random_tracks:
+            track_range = range(1, random.choice(track_range) + 1)
+
+        for t in track_range:
+            track_num = '{:0>3d}'.format(t)
+            file_name = base_file_name.format(disc_num, track_num)
+            track_names.append(file_name)
+
+            if not dry_run:
+                Path(target_directory, file_name).touch()
+            else:
+                print('{}/{}'.format(target_directory.name, file_name))
+
+    return track_names
 
 
 if __name__ == '__main__':
+
     results = generate_test_audio_files(
         'clean',
-        '9780739366608'
+        '9780739366608',
+        dry_run=True
     )
-    print(results)
+
