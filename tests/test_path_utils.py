@@ -3,7 +3,7 @@ import pytest
 
 from pathlib import Path
 
-from audio_bundler.path_utils import RE_AUDIO_CHAPTER, check_paths
+from audio_bundler.path_utils import RE_AUDIO_CHAPTER, get_paths
 
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,7 +21,7 @@ def test_re_audio_chapter_clean(datafiles):
 def test_check_paths_valid():
     source_directory = os.path.join(TEST_DIR, 'clean')
     output_directory = TEST_DIR
-    source, output = check_paths(source_directory, output_directory)
+    source, output = get_paths(source_directory, output_directory)
     assert source == Path(source_directory)
     assert output == Path(output_directory)
 
@@ -30,4 +30,4 @@ def test_check_paths_invalid():
     source_directory = '/opt/invalid'
     output_directory = TEST_DIR
     with pytest.raises(ValueError):
-        check_paths(source_directory, output_directory)
+        get_paths(source_directory, output_directory)
