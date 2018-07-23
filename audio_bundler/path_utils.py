@@ -6,6 +6,7 @@ __all__ = [
     'RE_AUDIO_CHAPTER',
     'get_paths',
     'validate_disc_tracks',
+    'validate_audio_tracks',
     'get_audio_file_dict',
 ]
 
@@ -45,24 +46,38 @@ def get_paths(source_directory, output_directory):
 
 def validate_disc_tracks(disc_dict):
     """
-    Light validation of expected dictionary track completed structure.
-    The track numbers are part of the filename, so the last track should be
-    the same as the total list length.
+    Validate that a disc's track numbers are contiguous
     :param disc_dict:
     :return:
     """
     tracks = disc_dict['tracks']
-    actual_count = len(tracks)
-    expected_count = int(tracks[-1])
-    if expected_count != actual_count:
-        raise ValueError(
-            'Disc #{}, appears to be missing tracks. '
-            'Expected {}, but gathered {}.'.format(
-                disc_dict['num'],
-                expected_count,
-                actual_count
+    track_num = 1
+
+    for track in tracks:
+        if track_num != int(track):
+            raise ValueError(
+                'Disc #{} is missing track #{:0>3d}'.format(
+                    disc_dict['num'],
+                    track_num
+                )
             )
-        )
+        track_num += 1
+    return True
+
+
+def validate_audio_tracks(audio_dict):
+    """
+    Test that disc numbers are contiguous and their tracks
+    :param audio_dict:
+    :return:
+    """
+    disc_num = 1
+    for disc_dict in audio_dict['discs']:
+        if disc_num != int(disc_dict['num']):
+            raise ValueError(
+                'Disc #{:0>2d} appears to be missing'.format(disc_num))
+        validate_disc_tracks(disc_dict)
+        disc_num += 1
     return True
 
 

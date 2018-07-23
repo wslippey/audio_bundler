@@ -38,6 +38,17 @@ def test_clean_audio_file_dict():
     assert d['isbn'] == '9780739366608'
     assert d['is_abridged'] is True
     assert len(d['file_paths'])
+    assert validate_audio_tracks(d) is True
 
 
+def test_invalid_audio_file_dict():
+    """ Should still gather anything that appears valid according to RE """
+    d = get_audio_file_dict(os.path.join(TEST_DIR, 'invalid_types'))
+    assert d['isbn'] == '9780739366608'
+    assert d['is_abridged'] is True
+    assert len(d['file_paths'])
+    for path in d['file_paths']:
+        assert '.txt' not in path
+    with pytest.raises(ValueError):
+        validate_audio_tracks(d)
 
