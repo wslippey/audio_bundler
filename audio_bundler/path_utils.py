@@ -13,11 +13,15 @@ RE_AUDIO_CHAPTER = re.compile(
 )
 
 
-def check_in_out_paths(input_path, output_path='.'):
+def check_paths(source_directory, output_directory):
     """
     Verify input and optional output_paths are valid
-    :param input_path: Path to directory containing audio chapter files
-    :param output_path:
+    :param source_directory: Path to directory containing audio chapter files
+    :param output_directory: Export path
     :return:
     """
-    pass
+    source_path = Path(source_directory)
+    output_path = Path(output_directory)
+    if not all([source_path.is_dir(), output_path.is_dir()]):
+        raise ValueError('Issue with source and/or output directory')
+    return source_path, output_path
