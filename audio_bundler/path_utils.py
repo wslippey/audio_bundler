@@ -6,7 +6,7 @@ __all__ = [
     'RE_AUDIO_CHAPTER',
     'get_paths',
     'validate_disc_tracks',
-
+    'get_audio_file_dict',
 ]
 
 
@@ -20,15 +20,12 @@ RE_AUDIO_CHAPTER = re.compile(
     re.IGNORECASE
 )
 
-DISC_DICT = {
-    'num': '',
-    'tracks': []
-}
 AUDIO_META = {
-    'isbn': '',
+    'isbn': None,
     'is_abridged': False,
     'file_paths': [],
-    'discs': []
+    'discs': [],
+    'file_type': None
 }
 
 
@@ -69,47 +66,44 @@ def validate_disc_tracks(disc_dict):
     return True
 
 
-def merge_audio_files(source_directory, output_directory='.'):
+def get_audio_file_dict(source_path):
     """
-    Merge assumed disc/track directory of audio files into one file, using
-    the same format. Uses the first file as a guide and does some light
-    validation to ensure that discs and tracks are contiguous.
-    :param source_directory:
-    :param output_directory:
+    Build dict for use in merging audio book files
+    :param source_path: path containing the source files
     :return:
     """
-    source_path, output_path = get_paths(
-        source_directory, output_directory)
-    source_files = list(source_path.iterdir())
+    source_files = sorted(list(Path(source_path).iterdir()))
     audio_meta = AUDIO_META.copy()
 
-    try:
-        init_file = source_files[0]
-    except IndexError:
+    if len(source_files) == 0:
         raise IndexError('Source directory appears to be empty')
-    else:
-        init_dict = RE_AUDIO_CHAPTER.match(init_file.name)
 
-    # Expecting to use the first file as our start / guide
-    if not init_dict:
-        raise ValueError(
-            'First file in directory: {} does not appear to have the expected '
-            'name / format'
-        )
-    else:
-        audio_meta['isbn'] = init_dict['isbn']
-        audio_meta['is_abridged'] = init_dict['abridged'].lower() == 'ab'
-
-    current_disc = {}
+    current_disc = None
     for file_path in source_files:
         re_dict = RE_AUDIO_CHAPTER.match(file_path.name)
 
         # there might be other files, but still valid so continue
         if not re_dict:
             continue
+        else:
+            audio_meta['file_paths'].append(file_path.as_uri())
+
+        if audio_meta['isbn'] is None:
+            audio_meta.update({
+                'isbn': re_dict['isbn'],
+                'is_abridged': re_dict['abridged'].lower() == 'ab',
+                'file_type': re_dict['ext']
+            })
 
         # Continue gathering tracks for a disc or start a new one
-        if current_disc is None or re_dict['disc'] != current_disc.get('num'):
-            disc_dict = DISC_DICT.copy()
-            disc_dict['num'] = re_dict['disc']
-            disc_dict['tracks'].append(re_dict['track'])
+        if current_disc is None or re_dict['disc'] != current_disc['num']:
+            current_disc = {
+                'num': re_dict['disc'],
+                'tracks': []
+            }
+            current_disc['tracks'].append(re_dict['track'])
+            audio_meta['discs'].append(current_disc)
+        else:
+            current_disc['tracks'].append(re_dict['track'])
+
+    return audio_meta

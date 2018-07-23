@@ -3,7 +3,7 @@ import pytest
 
 from pathlib import Path
 
-from audio_bundler.path_utils import RE_AUDIO_CHAPTER, get_paths
+from audio_bundler.path_utils import *
 
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,3 +31,13 @@ def test_check_paths_invalid():
     output_directory = TEST_DIR
     with pytest.raises(ValueError):
         get_paths(source_directory, output_directory)
+
+
+def test_clean_audio_file_dict():
+    d = get_audio_file_dict(os.path.join(TEST_DIR, 'clean'))
+    assert d['isbn'] == '9780739366608'
+    assert d['is_abridged'] is True
+    assert len(d['file_paths'])
+
+
+
