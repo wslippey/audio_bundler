@@ -12,7 +12,7 @@ setup(
     install_requires=requirements,
     entry_points='''
         [console_scripts]
-        audio_bundler=cmd:cli
+        audio_bundler=audio_bundler.cmd:cli
     ''',
     description='Bundle audiobook chapter files into one file',
     packages=['audio_bundler']

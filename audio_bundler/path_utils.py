@@ -17,12 +17,13 @@ RE_AUDIO_CHAPTER = re.compile(
     '(?P<abridged>(AB|DA))_'
     '(?P<disc>\d{2})_'
     '(?P<track>\d{3})_r1'
-    '\.(?P<ext>(wav|flac))$',
+    '\.(?P<file_type>(wav|flac))$',
     re.IGNORECASE
 )
 
 AUDIO_META = {
     'isbn': None,
+    'abridged_code': '',
     'is_abridged': False,
     'file_paths': [],
     'discs': [],
@@ -40,7 +41,7 @@ def get_paths(source_directory, output_directory):
     source_path = Path(source_directory)
     output_path = Path(output_directory)
     if not all([source_path.is_dir(), output_path.is_dir()]):
-        raise ValueError('Issue with source and/or output directory')
+        raise ValueError('Source and/or output directory is invalid')
     return source_path, output_path
 
 
@@ -97,18 +98,22 @@ def get_audio_file_dict(source_path):
     for file_path in source_files:
         re_dict = RE_AUDIO_CHAPTER.match(file_path.name)
 
-        # there might be other files, but still valid so continue
         if not re_dict:
             continue
-        else:
-            audio_meta['file_paths'].append(file_path.as_uri())
 
+        # Initial values
         if audio_meta['isbn'] is None:
             audio_meta.update({
                 'isbn': re_dict['isbn'],
+                'abridged_code': re_dict['abridged'],
                 'is_abridged': re_dict['abridged'].lower() == 'ab',
-                'file_type': re_dict['ext']
+                'file_type': re_dict['file_type']
             })
+        elif not all([audio_meta[k] == re_dict[k] for k in ('isbn', 'file_type')]):
+            # Constrain to the same file type for now
+            continue
+        else:
+            audio_meta['file_paths'].append(str(file_path))
 
         # Continue gathering tracks for a disc or start a new one
         if current_disc is None or re_dict['disc'] != current_disc['num']:
