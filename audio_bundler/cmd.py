@@ -21,10 +21,11 @@ def cli(source_directory, output_path):
     output_filename = '{isbn}_{abridged_code}_r1_full.{file_type}'.format(
         **audio_dict)
     output_path = output.joinpath(output_filename)
+
     out, err = (
         ffmpeg
-        .concat(*(ffmpeg.input(f) for f in audio_dict['file_paths']))
-        .output(str(output_path))
+        .concat(*(ffmpeg.input(f) for f in audio_dict['file_paths']), v=0, a=1)
+        .output(output_path.as_posix())
         .run()
     )
 
@@ -32,4 +33,4 @@ def cli(source_directory, output_path):
         click.echo(err)
         raise click.Abort()
 
-    click.echo(out)
+    click.echo('File written to: {}'.format(output_path.as_posix()))
