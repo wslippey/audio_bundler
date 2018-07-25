@@ -1,7 +1,13 @@
-# Audio book file bundler
+# Audio-Book file bundler
 
 Read files in a target directory and combine into one using ffmpeg.
-* Assumes that FFMPEG is installed and available
+
+**Assumes that FFMPEG is installed and available*
+
+Assumes filenames in the format of 
+    
+    9780739366608_AB_02_011_r1.wav
+    <isbn>_<abridged>_<disc>_<track>_t1.wav 
 
 
 ## Installation
