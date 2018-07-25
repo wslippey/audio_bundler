@@ -9,7 +9,11 @@ from .path_utils import *
 @click.option('--output-path', default='.', help='Path for output file')
 def cli(source_directory, output_path):
     """
-    Concatenate a single audio file from a directory of audio book disc tracks
+    Concatenate a single audio file from a directory of audio book disc tracks.
+    If successful, outputs the combined file with a similar name convention as
+    the ones found in the source directory.
+
+    e.g. 9780739366608_AB_02_011_r1.wav -> 9780739366608_AB_r1_full.wav
     """
     try:
         source, output = get_paths(source_directory, output_path)
