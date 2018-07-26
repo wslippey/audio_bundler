@@ -76,8 +76,9 @@ def generate_test_audio_files(
 if __name__ == '__main__':
 
     results = generate_test_audio_files(
-        'missing_both',
+        'all_invalid',
         '9780739366608',
+        ext='txt',
         # missing_discs=True,
         # missing_tracks=True,
         dry_run=False

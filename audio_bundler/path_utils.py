@@ -126,4 +126,7 @@ def get_audio_file_dict(source_path):
         else:
             current_disc['tracks'].append(re_dict['track'])
 
+    if audio_meta['isbn'] is None:
+        raise ValueError('No files matched name / extension criteria')
+
     return audio_meta

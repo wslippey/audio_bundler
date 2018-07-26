@@ -56,3 +56,11 @@ def test_invalid_audio_file_dict():
     with pytest.raises(ValueError):
         validate_audio_tracks(d)
 
+
+def test_all_invalid():
+    """
+    The file names may be correct but the extensions are not,
+    resulting in an empty dict
+    """
+    with pytest.raises(ValueError):
+        get_audio_file_dict(os.path.join(TEST_DIR, 'all_invalid'))
