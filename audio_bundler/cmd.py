@@ -21,15 +21,23 @@ def cli(source_directory, output_path):
         click.echo('Exception: {}'.format(e))
         raise click.Abort()
 
-    audio_dict = get_audio_file_dict(source)
+    try:
+        audio_dict = get_audio_file_dict(source)
+        validate_audio_tracks(audio_dict)
+    except (IndexError, ValueError) as e:
+        click.echo('Exception: {}'.format(e))
+        raise click.Abort()
+
     output_filename = '{isbn}_{abridged_code}_r1_full.{file_type}'.format(
         **audio_dict)
     output_path = output.joinpath(output_filename)
 
+    # Kick off ffmpeg work stream
     out, err = (
         ffmpeg
         .concat(*(ffmpeg.input(f) for f in audio_dict['file_paths']), v=0, a=1)
         .output(output_path.as_posix())
+        .overwrite_output()
         .run()
     )
 

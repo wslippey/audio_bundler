@@ -14,7 +14,7 @@ __all__ = [
 # Expected file naming convention for audio chapter files
 RE_AUDIO_CHAPTER = re.compile(
     '^(?P<isbn>\d{13,16})_'
-    '(?P<abridged>(AB|DA))_'
+    '(?P<abridged>(AB|DA|UA))_'
     '(?P<disc>\d{2})_'
     '(?P<track>\d{3})_r1'
     '\.(?P<file_type>(wav|flac))$',
@@ -107,7 +107,8 @@ def get_audio_file_dict(source_path):
                 'isbn': re_dict['isbn'],
                 'abridged_code': re_dict['abridged'],
                 'is_abridged': re_dict['abridged'].lower() == 'ab',
-                'file_type': re_dict['file_type']
+                'file_type': re_dict['file_type'],
+                'file_paths': [str(file_path)]
             })
         elif not all([audio_meta[k] == re_dict[k] for k in ('isbn', 'file_type')]):
             # Constrain to the same file type for now
